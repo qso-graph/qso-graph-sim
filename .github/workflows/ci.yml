@@ -31,7 +31,7 @@ jobs:
 
       - uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.11"
+          python-version: "3.11.18"
           enable-cache: true
 
       - name: Install (locked)
@@ -49,7 +49,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12", "3.13"]
+        # Patch versions, not minor ones. Asked for "3.12", uv takes whatever
+        # copy the runner already has -- Ubuntu 24.04's 3.12.3, twelve patches
+        # behind -- and nothing says so. These are the releases that reject the
+        # compromised eMudhra intermediate CAs (2026-10).
+        python-version: ["3.11.18", "3.12.16", "3.13.18"]
     steps:
       - uses: actions/checkout@v5
 
@@ -83,7 +87,7 @@ jobs:
 
       - uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.12"
+          python-version: "3.12.16"
           enable-cache: true
 
       - name: Install (locked)
