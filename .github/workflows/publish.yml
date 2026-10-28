@@ -1,0 +1,295 @@
+name: Publish to PyPI
+
+# A release happens on purpose, not as a side effect of merging (KI7MT, 2026-10-25).
+# qso-graph-sim is a command-line tool: PyPI only, no MCP Registry entry, no server.json.
+# This file is qso-graph-auth's, the org's other PyPI-only package, so the two release
+# the same way.
+#
+# `main` is the one working branch. Merging into it builds and tests and publishes
+# nothing; a release is Actions -> Publish to PyPI -> Run workflow, with the version typed
+# in. Typed, because it is a decision: it must match what the tree already says.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "The version to publish, e.g. 0.1.7 — must match pyproject.toml"
+        required: true
+        type: string
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  security:
+    name: Security gates
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      package: ${{ steps.version.outputs.package }}
+      # "true" when this version is on PyPI with no tag: an interrupted
+      # release being finished, not a new one being made.
+      resume: ${{ steps.version.outputs.resume }}
+    steps:
+      - uses: actions/checkout@v5
+
+      # workflow_dispatch offers a branch picker, so unlike the old push trigger this
+      # workflow can be started from anywhere. The lock is the pypi Environment's
+      # deployment branch rule (main only); this is the same rule stated where a failed
+      # run can show it, because an Environment rejection does not say what was wrong.
+      - name: This runs from main
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "FAIL: a release is published from main only (this is $GITHUB_REF)"
+            exit 1
+          fi
+
+      # Merging no longer publishes, so nothing else guarantees that what is about to be
+      # released is the code CI passed on. Under the old trigger the release PR had to be
+      # green before the merge that published it; this restores that property.
+      - name: CI passed on the commit being published
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PASSED="$(gh api \
+            "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs?check_name=ci-all-green" \
+            --jq '[.check_runs[] | select(.conclusion == "success")] | length')"
+          if [ "${PASSED:-0}" -lt 1 ]; then
+            echo "FAIL: ci-all-green has not passed on ${GITHUB_SHA}"
+            exit 1
+          fi
+          echo "ci-all-green passed on ${GITHUB_SHA}"
+
+      # A release publishes a version that is not out yet. Computed once; every later job
+      # uses it. The gate fails closed: anything it cannot confirm stops the release.
+      - name: The version is the one asked for, and new
+        id: version
+        env:
+          # Through the environment rather than interpolated into the script: a ${{ }}
+          # expansion inside run: is substituted before the shell sees it, so the input
+          # would be script rather than data. Only a writer can dispatch this, and the
+          # rule is still input validation on every supplied string.
+          ASKED: ${{ inputs.version }}
+        run: |
+          VERSION="$(grep -m1 '^version' pyproject.toml | cut -d'"' -f2)"
+          PACKAGE="$(grep -m1 '^name' pyproject.toml | cut -d'"' -f2)"
+          if ! printf '%s' "$ASKED" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([a-z0-9.-]*)$'; then
+            echo "FAIL: '$ASKED' is not a version"
+            exit 1
+          fi
+          # Typed by the person releasing, so a slip names a version that is not here
+          # rather than shipping whatever happens to be on main.
+          if [ "$ASKED" != "$VERSION" ]; then
+            echo "FAIL: asked to publish ${ASKED}, but this tree is ${VERSION}"
+            exit 1
+          fi
+          echo "${PACKAGE} ${VERSION}"
+          # Only a 404 means "not published yet"; unreachable or 5xx is not a yes.
+          CODE="$(curl -s -o /dev/null -w '%{http_code}' "https://pypi.org/pypi/${PACKAGE}/${VERSION}/json")"
+          # Read with the tag below, not alone. This refused on PyPI 200 full
+          # stop, so a failure in verify or tag -- both of which run after the
+          # upload -- left the version on PyPI, immutable and untagged, with no
+          # recovery but abandoning it. Three releases went that way across the
+          # fleet before 2026-10-27.
+          case "$CODE" in
+            404|200) : ;;
+            *) echo "FAIL: PyPI returned ${CODE}; cannot tell whether ${VERSION} is published"; exit 1 ;;
+          esac
+          # git ls-remote --exit-code: 2 means no such tag; anything else (0, 128) stops.
+          set +e
+          git ls-remote --exit-code --tags origin "refs/tags/v${VERSION}" > /dev/null
+          RC=$?
+          set -e
+          case "$RC" in
+            0) TAGGED=yes ;;
+            2) TAGGED=no ;;
+            *) echo "FAIL: could not check tags (git ls-remote exited ${RC})"; exit 1 ;;
+          esac
+
+          RESUME=false
+          if [ "$CODE" = 404 ] && [ "$TAGGED" = no ]; then
+            echo "PyPI: ${PACKAGE} ${VERSION} is new, tag v${VERSION} is free"
+          elif [ "$CODE" = 200 ] && [ "$TAGGED" = no ]; then
+            RESUME=true
+            echo "NOTE: ${PACKAGE} ${VERSION} is already on PyPI with no tag."
+            echo "      A previous run uploaded it and did not finish. Resuming:"
+            echo "      the upload is skipped, verify and tag complete the release."
+          elif [ "$CODE" = 200 ] && [ "$TAGGED" = yes ]; then
+            echo "FAIL: ${PACKAGE} ${VERSION} is on PyPI and tagged — already released."
+            exit 1
+          else
+            echo "FAIL: tag v${VERSION} exists but PyPI has no ${VERSION}."
+            echo "      Not a state this workflow creates; stopping rather than guessing."
+            exit 1
+          fi
+          echo "resume=${RESUME}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "package=${PACKAGE}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: pip install pytest pip-audit
+
+      - name: Run security test suite
+        run: python -m pytest tests/test_security.py -v
+
+      - name: Audit dependencies for vulnerabilities
+        # Audits this package's declared dependencies (it has none today), and can fail: a known CVE stops the release.
+        # A finding with no fix yet is excepted only explicitly: --ignore-vuln ID, with a reason and date.
+        run: pip-audit --strict --desc on .
+
+      - name: Grep check — no subprocess/shell
+        run: |
+          if grep -rn 'subprocess\.\|os\.system\|shell=True' src/; then
+            echo "FAIL: subprocess/shell found in source"
+            exit 1
+          fi
+
+      - name: Grep check — no plaintext http://
+        run: |
+          # Tests the output rather than the pipeline's exit status, because the output is
+          # what this gate is actually asking about: are there any plaintext URLs. The old
+          # form here printed nothing when it failed, and answered through whichever grep
+          # was on PATH.
+          #
+          # This fix landed on `develop` as #16 and never reached `main`, which is where the
+          # release gate runs -- so every release since went out through the old check. That
+          # is the "fixed on develop is not fixed" case in .claude/rules/security.md, and
+          # retiring develop is what finally carries it across.
+          hits="$(grep -rn 'http://' src/ | grep -v 'localhost\|127\.0\.0\.1\|::1' || true)"
+          if [ -n "$hits" ]; then
+            echo "$hits"
+            echo "FAIL: non-HTTPS URL found in source"
+            exit 1
+          fi
+
+      - name: Grep check — no credential logging
+        run: |
+          if grep -rn -i 'print.*password\|print.*api_key\|logging.*password\|logging.*api_key' src/; then
+            echo "FAIL: credential logging found in source"
+            exit 1
+          fi
+
+  publish:
+    name: Build and publish to PyPI
+    needs: security
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write  # Required for trusted publishing (OIDC)
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install build dependencies
+        if: needs.security.outputs.resume != 'true'
+        run: pip install build
+
+      - name: Build package
+        if: needs.security.outputs.resume != 'true'
+        run: python -m build
+
+      - name: Publish to PyPI
+        if: needs.security.outputs.resume != 'true'
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Already on PyPI — resuming
+        if: needs.security.outputs.resume == 'true'
+        run: |
+          echo "skipped the upload: this version is already on PyPI"
+
+  # ---------------------------------------------------------------------------
+  # Done when PyPI serves the version (verify); then tag the released commit. A workflow's
+  # own tag push triggers nothing. If tagging fails after PyPI serves it, the
+  # release IS published: re-running the job is safe.
+  # ---------------------------------------------------------------------------
+  verify:
+    name: Verify PyPI
+    needs: [security, publish]
+    runs-on: ubuntu-latest
+    steps:
+      - name: PyPI serves the released version
+        run: |
+          VERSION="${{ needs.security.outputs.version }}"
+          PACKAGE="${{ needs.security.outputs.package }}"
+          for i in $(seq 1 40); do
+            if [ "$(curl -s -o /dev/null -w '%{http_code}' "https://pypi.org/pypi/${PACKAGE}/${VERSION}/json")" = "200" ]; then
+              echo "PyPI serves ${PACKAGE} ${VERSION}"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "FAIL: PyPI never served ${PACKAGE} ${VERSION}"
+          exit 1
+
+  tag:
+    name: Tag the release
+    needs: [security, verify]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Create and push vX.Y.Z
+        run: |
+          VERSION="${{ needs.security.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${VERSION}" -m "${GITHUB_REPOSITORY#*/} ${VERSION}" "$GITHUB_SHA"
+          git push origin "v${VERSION}"
+
+      # The tag alone left every Releases page in this org empty. The body is
+      # this version's own CHANGELOG section, extracted by heading rather than
+      # by line count, because the fleet has three heading styles:
+      #   ## [0.4.0] — date    ## [2.0.0] - date    ## 0.2.0 (date)
+      # It stops at the next "## " heading, and returns nothing for a version
+      # it cannot find -- so a missing section falls back to GitHub's own
+      # generated notes rather than publishing the whole changelog.
+      #
+      # After `verify` by construction: a Release only ever describes a version
+      # already confirmed on PyPI.
+      - name: Create the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ needs.security.outputs.version }}"
+          python3 - "$VERSION" CHANGELOG.md > /tmp/notes.md <<'EXTRACT'
+          import re, sys, pathlib
+          ver, path = sys.argv[1], sys.argv[2]
+          text = pathlib.Path(path).read_text()
+          start = re.search(r'(?m)^##\s+\[?%s\]?\b.*$' % re.escape(ver), text)
+          if not start:
+              raise SystemExit(0)
+          rest = text[start.end():]
+          nxt = re.search(r'(?m)^##\s', rest)
+          print((rest[:nxt.start()] if nxt else rest).strip())
+          EXTRACT
+
+          # A version with a suffix (0.2.1rc1) is a pre-release, not Latest.
+          PRE=""
+          case "$VERSION" in
+            *[!0-9.]*) PRE="--prerelease" ;;
+          esac
+
+          if [ -s /tmp/notes.md ]; then
+            echo "release notes: this version's CHANGELOG section ($(wc -l < /tmp/notes.md) lines)"
+            gh release create "v${VERSION}" --verify-tag --title "v${VERSION}" \
+              --notes-file /tmp/notes.md $PRE
+          else
+            echo "release notes: no CHANGELOG section for ${VERSION}; using generated notes"
+            gh release create "v${VERSION}" --verify-tag --title "v${VERSION}" \
+              --generate-notes $PRE
+          fi
