@@ -12,11 +12,15 @@ It needs nothing but Python: no dependencies, no audio and no radio.
 
 ## Install
 
+It isn't on PyPI yet. Until the first release, run it from a clone (see [Development](#development)):
+
 ```bash
-uv tool install qso-graph-sim
+git clone https://github.com/qso-graph/qso-graph-sim.git
+cd qso-graph-sim
+uv run qso-graph-sim --wsjtx --to 192.168.1.50:2237
 ```
 
-Or `pipx install qso-graph-sim`. Either puts the `qso-graph-sim` command on your PATH, on Windows, Linux and macOS alike.
+Once it's released, `uv tool install qso-graph-sim` (or `pipx install qso-graph-sim`) will put the `qso-graph-sim` command on your PATH, on Windows, Linux and macOS alike.
 
 ## Quick start
 
@@ -26,7 +30,7 @@ Point it at the computer and port your receiver listens on. WSJT-X's own default
 qso-graph-sim --wsjtx --to 192.168.1.50:2237
 ```
 
-With no `--file` it plays a sample that comes with it: a few busy minutes of 20 m FT8, 120 decodes. To play your own log, give it WSJT-X's `ALL.TXT`:
+With no `--file` it plays a sample that comes with it: almost two busy minutes of 20 m FT8: 120 decodes in 7 cycles. To play your own log, give it WSJT-X's `ALL.TXT`:
 
 | Platform | Where WSJT-X keeps `ALL.TXT` |
 |---|---|
@@ -38,7 +42,7 @@ With no `--file` it plays a sample that comes with it: a few busy minutes of 20 
 qso-graph-sim --wsjtx --to 192.168.1.50:2237 --file ALL.TXT --from 260407_233000 --call KI7MT --grid DN13
 ```
 
-Press Ctrl+C to stop. It sends Clear and Close on the way out, as WSJT-X does when it shuts down.
+It stops at the end of the log (or keeps going with `--loop`), or when you press Ctrl+C. Either way it sends Clear and Close, as WSJT-X does when it shuts down.
 
 ## What it sends
 
@@ -53,7 +57,7 @@ Per cycle, in the order WSJT-X sends them:
 
 It also answers **Replay**, the message a receiver sends to ask for the decodes WSJT-X already has: every decode played so far, marked not new, then a Status. It listens only to the address it was pointed at, and only to messages for its own Id.
 
-The protocol is WSJT-X's own, as described in [`Network/NetworkMessage.hpp`](https://github.com/WSJTX/wsjtx/blob/main/Network/NetworkMessage.hpp), schema 3. A Tx line in the log is skipped: these are decodes, not your own transmissions.
+The protocol is WSJT-X's own, as described in [`Network/NetworkMessage.hpp`](https://github.com/WSJTX/wsjtx/blob/master/Network/NetworkMessage.hpp), schema 3. A Tx line in the log is skipped: these are decodes, not your own transmissions.
 
 ## Options
 
@@ -70,7 +74,7 @@ qso-graph-sim --wsjtx --to IP:PORT [--file PATH] [--from YYMMDD_HHMMSS]
 | `--from YYMMDD_HHMMSS` | start at this time in the log |
 | `--id NAME` | the instance name to send as; WSJT-X's default is `WSJT-X`. Run two with different names to look like two rigs |
 | `--call`, `--grid` | your callsign and grid, sent in Status |
-| `--speed N` | play N times faster than real time, for automated tests |
+| `--speed N` | play N times faster than real time, for automated tests; more than 0, up to 1000 |
 | `--loop` | start again at the end |
 
 ## Testing with WSJT-X itself

@@ -21,3 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A sample log of 120 decodes from 20 m FT8, played when no `--file` is given.
 - An encoder and decoder for WSJT-X's protocol, schema 3, written to `NetworkMessage.hpp`.
 - A test that the command is the package name, and any other command is prefixed with it.
+
+### Fixed
+
+- The README matched to what the tool does: it is not on PyPI yet (run it from a clone until the
+  first release), the sample is 120 decodes in 7 cycles, Clear and Close are sent on every exit,
+  and the link to `NetworkMessage.hpp` points at WSJT-X's `master` branch. `--help` names the
+  `--id` and `--speed` values `NAME` and `N`, as the README does.
