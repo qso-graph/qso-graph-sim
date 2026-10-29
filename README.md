@@ -8,7 +8,7 @@ Replays what a ham radio program sends on the network, from its own log, so you 
 
 We start with **WSJT-X**. Give it an `ALL.TXT`, the log WSJT-X keeps of every decode, and it sends those decodes over UDP exactly as WSJT-X does: Heartbeat, Status and Decode messages, one cycle every 15 seconds. Anything that listens to WSJT-X, such as [QSO Graph Desktop](https://github.com/qso-graph/qso-graph-desktop)'s Monitor, sees a live band.
 
-It needs nothing but Python: no dependencies, no audio and no radio.
+It needs nothing but Python and [qso-graph-lib](https://github.com/qso-graph/qso-graph-lib), which `pip` installs with it: no audio and no radio.
 
 ## Install
 
@@ -53,7 +53,7 @@ Per cycle, in the order WSJT-X sends them:
 
 It also answers **Replay**, the message a receiver sends to ask for the decodes WSJT-X already has: every decode played so far, marked not new, then a Status. It listens only to the address it was pointed at, and only to messages for its own Id.
 
-The protocol is WSJT-X's own, as described in [`Network/NetworkMessage.hpp`](https://github.com/WSJTX/wsjtx/blob/master/Network/NetworkMessage.hpp), schema 3. A Tx line in the log is skipped: these are decodes, not your own transmissions.
+The protocol is WSJT-X's own, as described in [`Network/NetworkMessage.hpp`](https://github.com/WSJTX/wsjtx/blob/master/Network/NetworkMessage.hpp), schema 3, encoded by `qso_graph_lib.jt`, the same code jt-mcp decodes it with. A Tx line in the log is skipped: these are decodes, not your own transmissions.
 
 ## Options
 

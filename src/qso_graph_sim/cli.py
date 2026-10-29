@@ -12,7 +12,9 @@ from collections.abc import Callable, Sequence
 from importlib.resources import files
 from pathlib import Path
 
-from . import __version__, alltxt
+from qso_graph_lib.jt import alltxt
+
+from . import __version__
 from .player import Player, Station
 
 SAMPLE = "ALL-sample.TXT"
@@ -94,7 +96,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def _read(path: Path | None) -> tuple[str, str]:
     if path is None:
-        sample = files("qso_graph_sim").joinpath("samples", SAMPLE)
+        sample = files("qso_graph_lib.jt").joinpath("samples", SAMPLE)
         return sample.read_text("utf-8"), "the sample"
     return path.read_text("utf-8", errors="replace"), str(path)
 

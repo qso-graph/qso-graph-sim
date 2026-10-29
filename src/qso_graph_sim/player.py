@@ -24,8 +24,8 @@ import time
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 
-from . import wsjtx
-from .alltxt import Cycle, Log
+from qso_graph_lib.jt import protocol
+from qso_graph_lib.jt.alltxt import Cycle, Log
 
 CYCLE_SECONDS = 15
 
@@ -47,8 +47,8 @@ class Player:
     loop: bool = False
     say: Callable[[str], None] = print
     clock: Callable[[], float] = time.time
-    _window: list[wsjtx.Decode] = field(default_factory=list, init=False)
-    _status: wsjtx.Status | None = field(default=None, init=False)
+    _window: list[protocol.Decode] = field(default_factory=list, init=False)
+    _status: protocol.Status | None = field(default=None, init=False)
     _stop: bool = field(default=False, init=False)
 
     def stop(self) -> None:
@@ -59,7 +59,7 @@ class Player:
 
     def _send_status(self) -> None:
         if self._status is not None:
-            self._send(wsjtx.status(self.station.sender, self._status))
+            self._send(protocol.status(self.station.sender, self._status))
 
     # ------------------------------------------------------------ incoming
 
@@ -71,15 +71,15 @@ class Player:
         if not self.accepts(address):
             return
         try:
-            msg = wsjtx.parse(data)
+            msg = protocol.parse(data)
         except ValueError:
             return
         if msg.sender != self.station.sender:
             return
-        if msg.kind == wsjtx.MessageType.REPLAY:
+        if msg.kind == protocol.MessageType.REPLAY:
             self.say(f"replay asked for: sending {len(self._window)} decodes")
             for d in self._window:
-                self._send(wsjtx.decode(self.station.sender, replace(d, is_new=False)))
+                self._send(protocol.decode(self.station.sender, replace(d, is_new=False)))
             self._send_status()
         # Reply, Halt Tx, Free Text, Close and the rest would act on a real
         # WSJT-X. A monitor never sends them, so there is nothing to do.
@@ -102,19 +102,19 @@ class Player:
 
     def _play(self, cycle: Cycle, played_at: float) -> None:
         ms_of_day = int((played_at % 86_400) * 1000)
-        self._status = wsjtx.Status(
+        self._status = protocol.Status(
             dial_hz=cycle.dial_hz, mode=cycle.mode, de_call=self.station.call,
             de_grid=self.station.grid, decoding=True,
         )
-        self._send(wsjtx.heartbeat(self.station.sender))
+        self._send(protocol.heartbeat(self.station.sender))
         self._send_status()
         for line in cycle.decodes:
-            d = wsjtx.Decode(
+            d = protocol.Decode(
                 is_new=True, ms_of_day=ms_of_day, snr=line.snr, dt=line.dt, df=line.df,
-                mode=wsjtx.mode_character(line.mode), message=line.message,
+                mode=protocol.mode_character(line.mode), message=line.message,
                 low_confidence=line.low_confidence,
             )
-            self._send(wsjtx.decode(self.station.sender, d))
+            self._send(protocol.decode(self.station.sender, d))
             self._window.append(d)
         self._status = replace(self._status, decoding=False)
         self._send_status()
@@ -144,5 +144,5 @@ class Player:
                 if not self.loop:
                     break
         finally:
-            self._send(wsjtx.clear(self.station.sender))
-            self._send(wsjtx.close(self.station.sender))
+            self._send(protocol.clear(self.station.sender))
+            self._send(protocol.close(self.station.sender))

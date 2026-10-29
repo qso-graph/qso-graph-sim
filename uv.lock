@@ -326,9 +326,21 @@ wheels = [
 ]
 
 [[package]]
+name = "qso-graph-lib"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/6f/e7/d81d8048e55280fb2a52d8fe78c265836e92121853df6a4e544d7333f56a/qso_graph_lib-0.1.0.tar.gz", hash = "sha256:c3fcbe2c13f893e0d9613a02aba665509004f6720b83622b294fc1d5d0c3ed31", size = 60220, upload-time = "2026-10-29T11:03:21.18Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/29/e0/b6526a9d271dd910b4f739f2d9a20c3099a0cc0af49449cae61499231009/qso_graph_lib-0.1.0-py3-none-any.whl", hash = "sha256:aa3cf3543c17fef8eec552948e4c948b7c49b234c4341862f78f526f22d5b3d7", size = 22145, upload-time = "2026-10-29T11:03:19.737Z" },
+]
+
+[[package]]
 name = "qso-graph-sim"
 version = "0.1.0"
 source = { editable = "." }
+dependencies = [
+    { name = "qso-graph-lib" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -338,6 +350,7 @@ dev = [
 ]
 
 [package.metadata]
+requires-dist = [{ name = "qso-graph-lib", specifier = ">=0.1.0" }]
 
 [package.metadata.requires-dev]
 dev = [
