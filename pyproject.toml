@@ -23,7 +23,10 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 # None: the standard library only (socket, struct, argparse).
-dependencies = []
+dependencies = [
+    # WSJT-X's protocol and ALL.TXT reader, shared with jt-mcp. Standard library only.
+    "qso-graph-lib>=0.1.0",
+]
 
 [project.scripts]
 qso-graph-sim = "qso_graph_sim.cli:main"

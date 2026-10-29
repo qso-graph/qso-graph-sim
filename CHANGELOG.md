@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **WSJT-X's protocol and the `ALL.TXT` reader come from
+  [qso-graph-lib](https://pypi.org/project/qso-graph-lib/)** (`qso_graph_lib.jt`), the code they
+  moved to unchanged, so qso-graph-sim and jt-mcp encode and decode with one implementation.
+  `qso_graph_sim.wsjtx`, `qso_graph_sim.alltxt` and the bundled sample are gone from this package;
+  the sample ships with the lib, and `--file` left out still plays it. qso-graph-sim's first
+  dependency, `qso-graph-lib>=0.1.0`, standard library only.
+
 ## [0.1.0] - 2026-10-29
 
 ### Security
