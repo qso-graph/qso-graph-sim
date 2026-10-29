@@ -76,16 +76,17 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--to", type=target, required=True, metavar="IP:PORT",
                    help="where to send: the receiver's address and port (WSJT-X uses 2237)")
     p.add_argument("--file", type=Path, metavar="PATH",
-                   help="the log to play (default: a few busy minutes of 20 m FT8)")
+                   help="the log to play (default: a sample of 20 m FT8, 120 decodes)")
     p.add_argument("--from", dest="start", type=_matching(_STAMP, "YYMMDD_HHMMSS"),
                    default="", metavar="YYMMDD_HHMMSS", help="start at this time in the log")
-    p.add_argument("--id", default="WSJT-X", type=_matching(re.compile(r"^.{1,64}$"), "an Id"),
+    p.add_argument("--id", default="WSJT-X", metavar="NAME",
+                   type=_matching(re.compile(r"^.{1,64}$"), "an Id"),
                    help="the instance name to send as (WSJT-X's default is WSJT-X)")
     p.add_argument("--call", default="", type=_matching(_CALL, "a callsign", upper=True),
                    help="your callsign, sent in Status")
     p.add_argument("--grid", default="", type=_matching(_GRID, "a 4- or 6-character grid"),
                    help="your grid, sent in Status")
-    p.add_argument("--speed", type=_speed, default=1.0,
+    p.add_argument("--speed", type=_speed, default=1.0, metavar="N",
                    help="play faster than real time, for testing (default 1)")
     p.add_argument("--loop", action="store_true", help="start again at the end")
     return p
