@@ -1,6 +1,6 @@
 [project]
 name = "qso-graph-sim"
-version = "0.1.0"
+version = "0.2.0"
 description = "Replays what ham radio programs send on the network (WSJT-X first), for testing without a radio"
 license = {text = "GPL-3.0-or-later"}
 requires-python = ">=3.11"
