@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-29
+
 ### Security
 
 - **CI and publishing run patched Pythons and pip** (eMudhra CA advisory, 2026-10). Workflows
@@ -27,3 +29,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The README matched to what the tool does: the sample is 120 decodes in 7 cycles, Clear and Close are sent on every exit,
   and the link to `NetworkMessage.hpp` points at WSJT-X's `master` branch. `--help` names the
   `--id` and `--speed` values `NAME` and `N`, as the README does.
+
