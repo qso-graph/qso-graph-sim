@@ -12,15 +12,11 @@ It needs nothing but Python: no dependencies, no audio and no radio.
 
 ## Install
 
-It isn't on PyPI yet. Until the first release, run it from a clone (see [Development](#development)):
-
 ```bash
-git clone https://github.com/qso-graph/qso-graph-sim.git
-cd qso-graph-sim
-uv run qso-graph-sim --wsjtx --to 192.168.1.50:2237
+uv tool install qso-graph-sim
 ```
 
-Once it's released, `uv tool install qso-graph-sim` (or `pipx install qso-graph-sim`) will put the `qso-graph-sim` command on your PATH, on Windows, Linux and macOS alike.
+Or `pipx install qso-graph-sim`. Either puts the `qso-graph-sim` command on your PATH, on Windows, Linux and macOS alike. From 0.1.0, the first release; to run the newest code instead, see [Development](#development).
 
 ## Quick start
 

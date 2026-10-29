@@ -24,7 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- The README matched to what the tool does: it is not on PyPI yet (run it from a clone until the
-  first release), the sample is 120 decodes in 7 cycles, Clear and Close are sent on every exit,
+- The README matched to what the tool does: the sample is 120 decodes in 7 cycles, Clear and Close are sent on every exit,
   and the link to `NetworkMessage.hpp` points at WSJT-X's `master` branch. `--help` names the
   `--id` and `--speed` values `NAME` and `N`, as the README does.
