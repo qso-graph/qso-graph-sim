@@ -61,4 +61,5 @@ def test_the_command_is_qg_sim_and_the_package_name_still_works() -> None:
     assert command in scripts, f"{name} installs no command called {command}"
     assert name in scripts, f"{name} no longer installs {name}, which uvx {name} runs"
     assert scripts[name] == scripts[command], f"{name} and {command} run different code"
-    assert set(scripts) == {command, name}, f"unexpected commands: {sorted(set(scripts) - {command, name})}"
+    extra = sorted(set(scripts) - {command, name})
+    assert not extra, f"unexpected commands: {extra}"
