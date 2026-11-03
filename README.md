@@ -10,13 +10,26 @@ We start with **WSJT-X**. Give it an `ALL.TXT`, the log WSJT-X keeps of every de
 
 It needs nothing but Python and [qso-graph-lib](https://github.com/qso-graph/qso-graph-lib), which `pip` installs with it: no audio and no radio.
 
-## Install
+## Run it
+
+With [uv](https://docs.astral.sh/uv/), run it with nothing installed, as QSO Graph's MCP servers run:
+
+```bash
+uvx qso-graph-sim --wsjtx --to 192.168.1.50:2237
+```
+
+To use it regularly, install it once. That puts the `qg-sim` command on your PATH, on Windows, Linux and macOS alike:
 
 ```bash
 uv tool install qso-graph-sim
+qg-sim --wsjtx --to 192.168.1.50:2237
 ```
 
-Or `pipx install qso-graph-sim`. Either puts the `qg-sim` command on your PATH (`qso-graph-sim` works too, the same command), on Windows, Linux and macOS alike. From 0.1.0, the first release; to run the newest code instead, see [Development](#development).
+Or `pipx install qso-graph-sim`. `qso-graph-sim` is installed too, as the same command.
+
+**Always name the package with uvx:** `uvx qso-graph-sim`, or `uvx --from qso-graph-sim qg-sim`. Not `uvx qg-sim`: uvx would look for a PyPI package called `qg-sim`, which isn't this one.
+
+To run the newest code instead, see [Development](#development).
 
 ## Quick start
 
