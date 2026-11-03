@@ -50,12 +50,16 @@ def test_publish_upgrades_pip_before_using_it() -> None:
         )
 
 
-def test_the_primary_command_is_the_package_name() -> None:
-    """`uv tool install X` gives you `X`; extra commands carry its name as a prefix."""
+def test_the_command_is_qg_sim_and_the_package_name_still_works() -> None:
+    """QSO Graph's commands are qg-<word>, its packages full qso-graph-* names (KI7MT,
+    2026-11-03). `uv tool install X` and `uvx X` look for a command called X, so the
+    package name stays installed as the same command, and nothing else is."""
     project = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]
     name, scripts = project["name"], project.get("scripts", {})
-    assert name in scripts, f"{name} installs no command called {name}"
-    for cmd in scripts:
-        assert cmd == name or cmd.startswith(f"{name}-"), (
-            f"{cmd} is neither {name} nor prefixed with it"
-        )
+    assert name.startswith("qso-graph-"), f"{name} is not a qso-graph-* package"
+    command = "qg-" + name.removeprefix("qso-graph-")
+    assert command in scripts, f"{name} installs no command called {command}"
+    assert name in scripts, f"{name} no longer installs {name}, which uvx {name} runs"
+    assert scripts[name] == scripts[command], f"{name} and {command} run different code"
+    extra = sorted(set(scripts) - {command, name})
+    assert not extra, f"unexpected commands: {extra}"

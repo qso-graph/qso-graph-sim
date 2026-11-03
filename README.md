@@ -16,14 +16,14 @@ It needs nothing but Python and [qso-graph-lib](https://github.com/qso-graph/qso
 uv tool install qso-graph-sim
 ```
 
-Or `pipx install qso-graph-sim`. Either puts the `qso-graph-sim` command on your PATH, on Windows, Linux and macOS alike. From 0.1.0, the first release; to run the newest code instead, see [Development](#development).
+Or `pipx install qso-graph-sim`. Either puts the `qg-sim` command on your PATH (`qso-graph-sim` works too, the same command), on Windows, Linux and macOS alike. From 0.1.0, the first release; to run the newest code instead, see [Development](#development).
 
 ## Quick start
 
 Point it at the computer and port your receiver listens on. WSJT-X's own default port is 2237.
 
 ```bash
-qso-graph-sim --wsjtx --to 192.168.1.50:2237
+qg-sim --wsjtx --to 192.168.1.50:2237
 ```
 
 With no `--file` it plays a sample that comes with it: almost two busy minutes of 20 m FT8: 120 decodes in 7 cycles. To play your own log, give it WSJT-X's `ALL.TXT`:
@@ -35,7 +35,7 @@ With no `--file` it plays a sample that comes with it: almost two busy minutes o
 | macOS | `~/Library/Application Support/WSJT-X/ALL.TXT` |
 
 ```bash
-qso-graph-sim --wsjtx --to 192.168.1.50:2237 --file ALL.TXT --from 260407_233000 --call KI7MT --grid DN13
+qg-sim --wsjtx --to 192.168.1.50:2237 --file ALL.TXT --from 260407_233000 --call KI7MT --grid DN13
 ```
 
 It stops at the end of the log (or keeps going with `--loop`), or when you press Ctrl+C. Either way it sends Clear and Close, as WSJT-X does when it shuts down.
@@ -58,7 +58,7 @@ The protocol is WSJT-X's own, as described in [`Network/NetworkMessage.hpp`](htt
 ## Options
 
 ```text
-qso-graph-sim --wsjtx --to IP:PORT [--file PATH] [--from YYMMDD_HHMMSS]
+qg-sim --wsjtx --to IP:PORT [--file PATH] [--from YYMMDD_HHMMSS]
               [--id NAME] [--call CALL] [--grid GRID] [--speed N] [--loop]
 ```
 

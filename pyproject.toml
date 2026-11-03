@@ -29,6 +29,10 @@ dependencies = [
 ]
 
 [project.scripts]
+# qg-sim is the command: QSO Graph's commands are qg-<word>, its packages full
+# qso-graph-* names (KI7MT, 2026-11-03). qso-graph-sim stays, the same command, so
+# `uvx qso-graph-sim` and every script that calls it keep working.
+qg-sim = "qso_graph_sim.cli:main"
 qso-graph-sim = "qso_graph_sim.cli:main"
 
 [project.urls]

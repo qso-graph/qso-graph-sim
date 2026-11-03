@@ -1,4 +1,4 @@
-"""The qso-graph-sim command."""
+"""The qg-sim command (also installed as qso-graph-sim)."""
 
 from __future__ import annotations
 
@@ -65,7 +65,7 @@ def _speed(text: str) -> float:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="qso-graph-sim",
+        prog="qg-sim",
         description=(
             "Replays what a ham radio program sends on the network, from its own log, "
             "so a receiver can be tested without a radio."
@@ -106,11 +106,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         text, name = _read(args.file)
     except OSError as e:
-        print(f"qso-graph-sim: cannot read {args.file}: {e.strerror}", file=sys.stderr)
+        print(f"qg-sim: cannot read {args.file}: {e.strerror}", file=sys.stderr)
         return 1
     log = alltxt.read(text, args.start)
     if not log.cycles:
-        print(f"qso-graph-sim: no received decodes in {name}"
+        print(f"qg-sim: no received decodes in {name}"
               + (f" from {args.start}" if args.start else ""), file=sys.stderr)
         return 1
     print(f"{len(log.cycles)} cycles, {log.decodes} decodes from {name}"
@@ -130,7 +130,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         except KeyboardInterrupt:
             player.stop()
         except OSError as e:
-            print(f"qso-graph-sim: cannot send to {host}:{port}: {e.strerror}",
+            print(f"qg-sim: cannot send to {host}:{port}: {e.strerror}",
                   file=sys.stderr)
             return 1
     return 0
