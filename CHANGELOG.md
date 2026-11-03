@@ -7,11 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-03
+
 ### Added
 
 - **`qg-sim`, the command's new name.** QSO Graph's commands are `qg-<word>` and its packages full
   `qso-graph-*` names (KI7MT, 2026-11-03). `qso-graph-sim` is still installed as the same command, so
   `uvx qso-graph-sim` and every script that calls it keep working.
+
+### Changed
+
+- **The README leads with `uvx qso-graph-sim`,** as QSO Graph's MCP servers run, then `uv tool install` for
+  regular use. With uvx, name the package (`uvx --from qso-graph-sim qg-sim`), never `uvx qg-sim`, which
+  would fetch a different PyPI package.
 
 ## [0.2.0] - 2026-10-29
 
