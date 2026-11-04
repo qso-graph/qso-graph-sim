@@ -4,7 +4,7 @@
 # servers. Without one Dependabot runs *security* updates only -- those need no
 # config -- and they are ungrouped by default: one advisory x one package x one
 # repository = one pull request. Four upgrades produced **57 open pull requests**
-# across the fleet, and KI7MT's objection was the right one: nobody could say
+# across the fleet, and the objection to them was the right one: nobody could say
 # what 57 pull requests did. Measured, they were four dependency upgrades closing
 # 130 alerts, one of them CRITICAL. The volume was not noise, it was signal
 # nobody could read.
