@@ -1,6 +1,6 @@
 name: Publish to PyPI
 
-# A release happens on purpose, not as a side effect of merging (KI7MT, 2026-10-25).
+# A release happens on purpose, not as a side effect of merging.
 # qso-graph-sim is a command-line tool: PyPI only, no MCP Registry entry, no server.json.
 # This file is qso-graph-auth's, the org's other PyPI-only package, so the two release
 # the same way.

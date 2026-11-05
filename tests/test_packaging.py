@@ -51,8 +51,8 @@ def test_publish_upgrades_pip_before_using_it() -> None:
 
 
 def test_the_command_is_qg_sim_and_the_package_name_still_works() -> None:
-    """QSO Graph's commands are qg-<word>, its packages full qso-graph-* names (KI7MT,
-    2026-11-03). `uv tool install X` and `uvx X` look for a command called X, so the
+    """QSO Graph's commands are qg-<word>, its packages full qso-graph-* names.
+    `uv tool install X` and `uvx X` look for a command called X, so the
     package name stays installed as the same command, and nothing else is."""
     project = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]
     name, scripts = project["name"], project.get("scripts", {})

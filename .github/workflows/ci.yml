@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   # Lint and types, once rather than per Python: both read the source, and
-  # neither answer changes with the interpreter running them (qso-graph-devel#66).
+  # neither answer changes with the interpreter running them.
   lint:
     name: ruff and mypy
     runs-on: ubuntu-latest
