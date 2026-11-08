@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/qso-graph-sim)](https://pypi.org/project/qso-graph-sim/)
 [![Python](https://img.shields.io/pypi/pyversions/qso-graph-sim)](https://pypi.org/project/qso-graph-sim/)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 Replays what a ham radio program sends on the network, from its own log, so you can build and test whatever receives it without a radio, an antenna or the program itself.
 
@@ -105,4 +105,4 @@ This package is part of [qso-graph](https://github.com/qso-graph), tools for ama
 
 ## License
 
-[GPLv3](LICENSE)
+[GPL-3.0-or-later](LICENSE)
