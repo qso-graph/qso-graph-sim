@@ -25,7 +25,7 @@ uv tool install qso-graph-sim
 qg-sim --wsjtx --to 192.168.1.50:2237
 ```
 
-Or `pipx install qso-graph-sim`. `qso-graph-sim` is installed too, as the same command.
+`qso-graph-sim` is installed too, as the same command.
 
 **Always name the package with uvx:** `uvx qso-graph-sim`, or `uvx --from qso-graph-sim qg-sim`. Not `uvx qg-sim`: uvx would look for a PyPI package called `qg-sim`, which isn't this one.
 
