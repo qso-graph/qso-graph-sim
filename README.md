@@ -8,7 +8,7 @@ Replays what a ham radio program sends on the network, from its own log, so you 
 
 We start with **WSJT-X**. Give it an `ALL.TXT`, the log WSJT-X keeps of every decode, and it sends those decodes over UDP exactly as WSJT-X does: Heartbeat, Status and Decode messages, one cycle every 15 seconds. Anything that listens to WSJT-X, such as [QSO Graph Desktop](https://github.com/qso-graph/qso-graph-desktop)'s Monitor, sees a live band.
 
-It needs nothing but Python and [qso-graph-lib](https://github.com/qso-graph/qso-graph-lib), which `pip` installs with it: no audio and no radio.
+It needs nothing but Python and [qso-graph-lib](https://github.com/qso-graph/qso-graph-lib), which installs with it: no audio and no radio.
 
 ## Run it
 

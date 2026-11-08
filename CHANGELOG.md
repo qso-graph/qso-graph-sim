@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- AGENTS.md and CLAUDE.md: the organization's shared agent guide, and this repository's own; README no longer mentions pip.
+
 ## [0.3.1] - 2026-11-08
 
 ### Changed
