@@ -1,6 +1,6 @@
 [project]
 name = "qso-graph-sim"
-version = "0.3.1"
+version = "0.3.2"
 description = "Replays what ham radio programs send on the network (WSJT-X first), for testing without a radio"
 license = {text = "GPL-3.0-or-later"}
 requires-python = ">=3.11"
@@ -10,7 +10,7 @@ keywords = [
     "amateur-radio", "ham-radio", "wsjt-x", "ft8", "udp", "simulator", "testing",
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 7 - Inactive",
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Topic :: Communications :: Ham Radio",

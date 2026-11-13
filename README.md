@@ -4,6 +4,10 @@
 [![Python](https://img.shields.io/pypi/pyversions/qso-graph-sim)](https://pypi.org/project/qso-graph-sim/)
 [![License: GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
+> **qso-graph-sim is retired; this is its last release.** Its successor is **QG Interop**: `qg-interop sim` simulates WSJT-X, N1MM Logger+ and fldigi, and `qg-interop listen` shows what they send.
+> Install it from [crates.io](https://crates.io/crates/qso-graph-interop-cli) (`cargo install qso-graph-interop-cli`), or download a signed build for Windows, macOS or Linux from [its releases](https://github.com/qso-graph/qso-graph-interop/releases).
+> Earlier versions stay on PyPI and keep working.
+
 Replays what a ham radio program sends on the network, from its own log, so you can build and test whatever receives it without a radio, an antenna or the program itself.
 
 We start with **WSJT-X**. Give it an `ALL.TXT`, the log WSJT-X keeps of every decode, and it sends those decodes over UDP exactly as WSJT-X does: Heartbeat, Status and Decode messages, one cycle every 15 seconds. Anything that listens to WSJT-X, such as [QSO Graph Desktop](https://github.com/qso-graph/qso-graph-desktop)'s Monitor, sees a live band.
