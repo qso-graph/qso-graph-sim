@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-11-13
+
+The last release. qso-graph-sim is retired in favor of QG Interop's `qg-interop sim`.
+
 ### Changed
 
-
+- README: points to QG Interop (crates.io and its signed releases).
 - Licensed GPL-3.0-or-later, the same as every QSO Graph project.
 - AGENTS.md and CLAUDE.md: the organization's shared agent guide, and this repository's own; README no longer mentions pip.
 
